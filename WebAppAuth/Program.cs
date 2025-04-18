@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using WebAppAuth.Data;
+using WebAppAuth.Migrations;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,7 +18,7 @@ builder.Services.AddSwaggerGen();
 // Add DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
+builder.Services.AddSingleton<TokenBlacklist>();
 // Add Identity
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -57,7 +58,31 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
-
+app.UseMiddleware<JwtBlacklistMiddleware>();
 app.MapControllers();
 
 app.Run();
+
+public class JwtBlacklistMiddleware
+{
+    private readonly RequestDelegate _next;
+
+    public JwtBlacklistMiddleware(RequestDelegate next)
+    {
+        _next = next;
+    }
+
+    public async Task Invoke(HttpContext context, TokenBlacklist tokenBlacklist)
+    {
+        var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+        
+        if (token != null && tokenBlacklist.Contains(token))
+        {
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            await context.Response.WriteAsync("Token has been revoked");
+            return;
+        }
+
+        await _next(context);
+    }
+}

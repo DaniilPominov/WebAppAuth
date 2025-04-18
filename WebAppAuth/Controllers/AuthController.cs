@@ -1,10 +1,11 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Security.Claims;
 using System.Text;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using WebAppAuth.Migrations;
 using WebAppAuth.Models;
 
 namespace WebAppAuth.Controllers
@@ -15,13 +16,30 @@ namespace WebAppAuth.Controllers
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IConfiguration _configuration;
+        private readonly TokenBlacklist _tokenBlacklist;
+
 
         public AuthController(
             UserManager<IdentityUser> userManager,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            TokenBlacklist tokenBlacklist
+    )
         {
             _userManager = userManager;
             _configuration = configuration;
+            _tokenBlacklist = tokenBlacklist;
+        }
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                _tokenBlacklist.Add(token);
+            }
+
+            return Ok(new { Message = "You have been logged out successfully." });
         }
 
         [HttpPost("register")]
