@@ -130,7 +130,7 @@ namespace WebAppAuth.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdatePost(int id, PostDto postDto)
         {
-            var post = await _context.Posts.FindAsync(id);
+            var post = await _context.Posts.Include(p=>p.AuthorId).Where(p=>p.Id==id).FirstOrDefaultAsync();
             if (post == null)
             {
                 return NotFound();
