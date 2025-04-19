@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using WebAppAuth.Data;
-using WebAppAuth.Migrations;
+using WebAppAuth.Infractructure;
 
 var builder = WebApplication.CreateBuilder(args);
 

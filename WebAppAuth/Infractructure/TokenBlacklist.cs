@@ -1,7 +1,7 @@
 using System;
 using System.IdentityModel.Tokens.Jwt;
 
-namespace WebAppAuth.Migrations;
+namespace WebAppAuth.Infractructure;
 
 public class TokenBlacklist
 {

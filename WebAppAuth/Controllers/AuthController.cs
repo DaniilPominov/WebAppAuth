@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using WebAppAuth.Migrations;
+using WebAppAuth.Infractructure;
 using WebAppAuth.Models;
 
 namespace WebAppAuth.Controllers
