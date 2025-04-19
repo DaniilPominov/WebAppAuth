@@ -10,4 +10,16 @@ public class ApplicationDbContext : IdentityDbContext
             : base(options)
         {
         }
+        public DbSet<Post> Posts { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+            
+            builder.Entity<Post>()
+                .HasOne(p => p.Author)
+                .WithMany()
+                .HasForeignKey(p => p.AuthorId)
+                .OnDelete(DeleteBehavior.Restrict);
+        }
     }
